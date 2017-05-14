@@ -1,0 +1,68 @@
+#{extends 'main.html' /}
+#{set title:'Home' /}
+
+<div style="width:100%;height: 60px;"></div>
+
+<div id="edit-area">
+    <textarea id="content"></textarea>
+    <div id="error">this is some thing wrong.</div>
+    <div style="width:100%;height: 20px;"></div>
+    <div id="submit">Submit</div>
+</div>
+
+<div id="res-area">
+    <input id="view_url" style="width: 100%; height:30px;display: block;"/>
+    <div style="width:100%;height: 20px;"></div>
+    <div id="qrcode" style="width: 100%;text-align: center;"></div>
+    <div style="width:100%;height: 20px;"></div>
+    <div id="reedit">Re-edit</div>
+</div>
+
+<script>
+
+    var edit_area = $("#edit-area");
+    var res_area = $("#res-area");
+
+    var content = $("#content");
+    var submit = $("#submit");
+    var error = $("#error");
+    var view_url = $("#view_url");
+    var qrcode = $("#qrcode");
+    var reedit = $("#reedit");
+
+    content.bind("keydown", function(e) {
+        error.hide();
+        return;
+    });
+
+    submit.bind("click", function (e) {
+        var contentVal = content.val();
+        if (contentVal === null || contentVal.length === 0) {
+            error.html("You should input something.");
+            error.show();
+            return;
+        }
+
+        $.post("send", {content: contentVal}, function (res) {
+            if (res.success) {
+                edit_area.hide();
+                res_area.show();
+
+                var url = res.view_url;
+                view_url.val(url);
+
+                qrcode.empty();
+                qrcode.qrcode(url);
+                return;
+            } else {
+                error.html(res.msg);
+                return;
+            }
+        })
+    });
+
+    reedit.bind("click", function (e) {
+        edit_area.show();
+        res_area.hide();
+    })
+</script>
